@@ -3,50 +3,50 @@
 
 #include <iostream>
 #include <algorithm>
-#include "node.h"
 #include <map>
-#include "ontology.h"
 
-using namespace std;
+#include <ontology/node.h>
+#include <ontology/ontology.h>
 
 /* The interface object will include information about the current interface,
-   including the current modalities selected, the current requirements met, and
-   the remaining requirements to be met. */
+ * including the current modalities selected, the current requirements met, and
+ * the remaining requirements to be met. */
 
 class ModInterface
 {
-  protected:
+protected:
+    std::set<int> _current_modalities;    // Modalities in the current interface
+    std::set<int> _requirements_met;   // The requirements met by the current interface
+    std::set<int> _requirements_left;   // the requirements required by the current interface which have not currently been met
 
-    set <int> currentModalities;   // Modalities in the current interface
-    set <int> requirementsMet;  // The requirements met by the current interface
-    set <int> requirementsLeft;  // the requirements required by the current interface which have not currently been met
+    std::map<int, int> _attributes;
 
-    map <int,int> attributes;
-
-  public:
+public:
     ModInterface();
 
     // Add a modality to the current interface.
-    void addModality(Node modality);    
+    void addModality( Node modality );
 
     // Get the requirements of the current interface
-    set <int> getRequirements();   
+    std::set<int> getRequirements();
 
     // Check if the current interface has any requirements
     bool hasRequirements();
 
     // Print otu the current interface
     void print();
-    void print(Ontology O);
+
+    void print( Ontology ontology );
 
     // Print otu the current interface
-    bool compare(const ModInterface &b);
+    bool compare( ModInterface const & mod_interface );
 
-    bool operator == (ModInterface& d) {
-      return compare(d);
+    bool operator==( ModInterface & mod_interface )
+    {
+        return compare( mod_interface );
     }
 
-    vector <ModInterface> makeChildren(Ontology myOntology);
-
+    std::vector<ModInterface> makeChildren( Ontology ontology );
 };
+
 #endif

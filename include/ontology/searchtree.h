@@ -7,11 +7,9 @@
 #include <queue>
 #include <set>
 #include <stack>
-#include "modinterface.h"
-#include "ontology.h"
 
-using namespace std;
-
+#include <ontology/modinterface.h>
+#include <ontology/ontology.h>
 
 /* Need to search over possible interfaces to find one which meets the
  * requirements of the ontology.  This search tree allows for searching in
@@ -22,40 +20,31 @@ using namespace std;
 
 class SearchTree
 {
+protected:
+    std::queue<ModInterface> _search_queue;
+    Ontology _ontology;
+    // list of nodes which have already been examined.
+    std::set<ModInterface> _examined_nodes;
 
-  protected:
-    queue <ModInterface> SearchQueue;
-    Ontology myOntology;
-    set <ModInterface> ExaminedNodes; // list of nodes which have already been examined.
-
-  public:
+public:
     // The constructor function.  Takes in an already-loaded ontology
     SearchTree();
-    SearchTree(Ontology database);
+    SearchTree( Ontology database );
     // Constructor function. Takes in a file name to load
     // SearchTree(std::string const & filename);
 
     // Search to find a potential interface which meets the requirements using
-    // the ontology as the database. 
-    //  XXX Returning void for now, change to ModInterface later
+    // the ontology as the database.
+    // XXX Returning void for now, change to ModInterface later
     void selectInterfacesSample();
 
-    void addNode(ModInterface newNode);
-    void addNode(vector <ModInterface> nodeList);  // add a bunch of new nodes to the tree
+    void addNode( ModInterface new_node );
+
+    void addNode( std::vector<ModInterface> node_list );  // add a bunch of new nodes to the tree
 
     ModInterface returnNext();  // return the next node to be searched in the tree
 
-
     bool isEmpty(); // returns true if the tree is empty.
-
-
-
-
-
-
-
-
-
 };
 
 #endif

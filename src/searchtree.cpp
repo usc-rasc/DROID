@@ -1,164 +1,155 @@
 #include <ontology/searchtree.h>
 
 /************************************************************
- * Constructor.  Uses an existing ontology
- ************************************************************/
-SearchTree::SearchTree(){
-
+* Constructor.  Uses an existing ontology
+************************************************************/
+SearchTree::SearchTree()
+{
+    //
 }
 
 /************************************************************
- * Constructor.  Uses an existing ontology
- ************************************************************/
-SearchTree::SearchTree(Ontology database){
-  cout << "searchtree.cpp: Creating Search Tree.  Using a queue representation (BFS).\n";
-  cout << "searchtree.cpp: Copying ontology\n";
-  myOntology = database;
+* Constructor.  Uses an existing ontology
+************************************************************/
+SearchTree::SearchTree( Ontology database )
+{
+    std::cerr << "searchtree.cpp: Creating Search Tree.  Using a queue representation (BFS)." << std::endl;
+    std::cerr << "searchtree.cpp: Copying ontology" << std::endl;
+    _ontology = database;
 }
 
-
 /************************************************************
- * Add a node to the tree.  Will need to check if it is a repeat or not.  Add
- * to either the stack, queue, or priority queue based on sorting method.
- ************************************************************/
-void SearchTree::addNode(ModInterface newNode){
+* Add a node to the tree.  Will need to check if it is a repeat or not.  Add
+* to either the stack, queue, or priority queue based on sorting method.
+************************************************************/
+void SearchTree::addNode( ModInterface new_node )
+{
+    // need to check for loops.  ie. maintain a set of visited nodes.
+    // Check if the new node has already been examined
 
-  // need to check for loops.  ie. maintain a set of visited nodes.
-  // Check if the new node has already been examined
+    std::set<ModInterface>::iterator iter;
 
-  set <ModInterface>::iterator iter;
-
-  for (iter = ExaminedNodes.begin(); iter != ExaminedNodes.end(); ++iter){
-    if (newNode.compare(*iter)){ 
-      return; 
+    for( iter = _examined_nodes.begin(); iter != _examined_nodes.end(); ++iter )
+    {
+        if( new_node.compare( *iter ) )
+        {
+            return;
+        }
     }
-  }
-  // if not, then add it to the queue.
 
-  SearchQueue.push(newNode);
+    // if not, then add it to the queue.
 
+    _search_queue.push( new_node );
 }
 
 /************************************************************
- * Add a vector of nodes to the tree.
- ************************************************************/
-void SearchTree::addNode(vector <ModInterface> nodeList){
-
-  // Iterate over nodeList and call addNode for each
-  for (int i=0; i<nodeList.size(); i++){
-    addNode(nodeList[i]);
-  }
-
+* Add a vector of nodes to the tree.
+************************************************************/
+void SearchTree::addNode( std::vector<ModInterface> node_list )
+{
+    // Iterate over node_list and call addNode for each
+    for( int node_idx = 0; node_idx < node_list.size(); ++node_idx )
+    {
+        addNode( node_list[node_idx] );
+    }
 }
-
 
 /*************************************************************
- *
- * return if the tree is empty or not
- *
- *************************************************************/
-bool SearchTree::isEmpty(){
+*
+* return if the tree is empty or not
+*
+*************************************************************/
+bool SearchTree::isEmpty()
+{
+    std::cerr << ( _search_queue.empty() ? "_search_queue is empty" : "_search_queue is not empty" ) << std::endl;
 
-  if (SearchQueue.empty()){
-    cout << "Search is empty\n";
-  } else { cout << "SearchQueue is not empty\n";
-  }
-  return(SearchQueue.empty());
-
+    return _search_queue.empty();
 }
 
 /************************************************************
- * Return the next node in the tree.
- ************************************************************/
-ModInterface SearchTree::returnNext(){
+* Return the next node in the tree.
+************************************************************/
+ModInterface SearchTree::returnNext()
+{
+    ModInterface new_interface = _search_queue.front();
 
-  ModInterface newInterface = SearchQueue.front();
-  SearchQueue.pop();
+    _search_queue.pop();
 
-  return newInterface;
-
+    return new_interface;
 }
-
-
 
 /************************************************************
-  Search to find a potential interface which meets the requirements using the
-  ontology as the database.
- ************************************************************/
+*  Search to find a potential interface which meets the requirements using the
+*  ontology as the database.
+************************************************************/
 
-void SearchTree::selectInterfacesSample(){
+void SearchTree::selectInterfacesSample()
+{
+    // Create list of requirements
+    // Initalized from ontology
+    // Create list of currently selected modalities
+    // Create list of met requirements
+    // for each item in requirements list
+    // check if requirement has already been met
+    // If not met yet
+    // Follow the "provides" backlinks --> Provides a list of potential modalities
+    // Select one modality from the list randomly
+    // Version 1) Add Modality.  Add requirements of modality. Add requirements it provides
+    // Assume requirement is met, add it to list of completed requirements
+    // Repeat until requirements list empty
+    // Need to check if all requirements can be met.  If not, then start over.
+    // Version 2) Iterate on modality.  Make sure requirements can be met before adding
 
-  // Create list of requirements
-  //  Initalized from ontology
-  // Create list of currently selected modalities
-  // Create list of met requirements
-  // for each item in requirements list
-  // check if requirement has already been met
-  // If not met yet
-  //   Follow the "provides" backlinks --> Provides a list of potential modalities
-  //   Select one modality from the list randomly
-  //   Version 1) Add Modality.  Add requirements of modality. Add requirements it provides
-  //     Assume requirement is met, add it to list of completed requirements
-  // Repeat until requirements list empty
-  // Need to check if all requirements can be met.  If not, then start over.
-  //   Version 2) Iterate on modality.  Make sure requirements can be met before adding
+    // Add the initial set of requirements by adding the requirements node
+    ModInterface current_interface;
 
+    std::vector<ModInterface> candidate_interfaces;
 
+    current_interface.addModality( _ontology.getRequirementsNode() );
+    current_interface.print();
 
-  // Add the initial set of requirements by adding the requirements node
-  ModInterface currentInterface;
+    // push the initial modality onto the search "tree" (ie. queue)
+    addNode( current_interface );
 
-  vector <ModInterface> potentialInterfaces;
+    // Now repeat until
+    // 1) we have an interface with remaining requirements
+    // or 2) until search tree is empty.  If empty, then fail.
 
-  currentInterface.addModality(myOntology.getReqNode());
-  currentInterface.print();
+    // while ((!isEmpty()) && current_interface.hasRequirements())
+    while( !isEmpty() )
+    {
+        std::cerr << "******************************************" << std::endl;
+        std::cerr << "Examining node" << std::endl;
+        current_interface.print();
 
+        // Be careful about data structures here, we have Nodes, Interfaces, and a SearchTree
 
-  // push the initial modality onto the search "tree" (ie. queue)
-  addNode(currentInterface);
+        if( !current_interface.hasRequirements() )
+        {
+            // add it to the list
+            candidate_interfaces.push_back( current_interface );
+        }
+        else
+        {
+            // 1) Generate the children of the current interface
+            // vector <ModInterface> children = _ontology.makeChildren(current_interface);
+            std::vector<ModInterface> children = current_interface.makeChildren( _ontology );
 
-  // Now repeat until
-  // 1) we have an interface with remaining requirements
-  // or 2) until search tree is empty.  If empty, then fail.
+            // 2) Add those children to the tree
+            addNode( children );
 
-  // while ((!isEmpty()) && currentInterface.hasRequirements())
-  while (!isEmpty())
-  {
+            // 3) Get the next interface to examine from the tree
+        }
 
-    cout << "******************************************\n";
-    cout << "Examining node\n";
-    currentInterface.print();
+        current_interface = returnNext();
+    }
 
-    // Be careful about data structures here, we have Nodes, Interfaces, and a SearchTree
+    std::cerr << "\n\n********************************************************************************" << std::endl;
+    std::cerr << "********************************************************************************" << std::endl;
 
-    if (!currentInterface.hasRequirements()){
-      // add it to the list
-      potentialInterfaces.push_back(currentInterface);
-    } else {
-
-    // 1) Generate the children of the current interface
-    //vector <ModInterface> children = myOntology.makeChildren(currentInterface);
-    vector <ModInterface> children = currentInterface.makeChildren(myOntology);
-
-    // 2) Add those children to the tree
-    addNode(children);
-
-    // 3) Get the next interface to examine from the tree
-   }
-
-   currentInterface = returnNext();
-
-
-  }
-
-  cout << "\n\n********************************************************************************\n";
-  cout << "********************************************************************************\n";
-
-  for (int i=0; i<potentialInterfaces.size(); i++){ 
-    potentialInterfaces[i].print(myOntology);
-  cout << "********************************************************************************\n";
-  }
-
-
+    for( int i = 0; i < candidate_interfaces.size(); i++ )
+    {
+        candidate_interfaces[i].print( _ontology );
+        std::cerr << "********************************************************************************" << std::endl;
+    }
 }
-
