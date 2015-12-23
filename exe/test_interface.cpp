@@ -5,39 +5,51 @@
 #include <ontology/ontology.h>
 #include <ontology/modinterface.h>
 
-using namespace std;
-
 int main()
 {
-  Ontology oComplete("interface.ont");
- 
-  ModInterface currentInterface; 
-  ModInterface testInterface;
- 
-  int ReqID = oComplete.getReqID();
-  Node ReqNode = oComplete.getNode(ReqID);
-  
-  currentInterface.addModality(ReqNode);
-  currentInterface.print(); 
-  currentInterface.addModality(oComplete.getNode(18));
-  currentInterface.print(); 
-  currentInterface.addModality(oComplete.getNode(9));
-  currentInterface.print(); 
-  currentInterface.addModality(oComplete.getNode(0));
-  currentInterface.print(); 
-
-  testInterface.addModality(ReqNode);
-  testInterface.print(); 
-  testInterface.addModality(oComplete.getNode(18));
-  testInterface.print(); 
-  testInterface.addModality(oComplete.getNode(9));
-  testInterface.print(); 
-  testInterface.addModality(oComplete.getNode(0));
-  testInterface.print(); 
-
-  if (currentInterface.compare(testInterface)) cout << "True!!!\n";
-  else cout << "False!!!\n";
-
-  if (currentInterface == testInterface) cout << "True!!!\n";
-  else cout << "False!!!\n";
+    Ontology ontology( std::cin );
+    
+    ModInterface current_interface; 
+    ModInterface test_interface;
+    
+    int requirements_node_id = ontology.getRequirementsNodeID();
+    Node requirements_node = ontology.getNode( requirements_node_id );
+    
+    current_interface.addModality( requirements_node );
+    current_interface.print(); 
+    current_interface.addModality( ontology.getNode( 18 ));
+    current_interface.print(); 
+    current_interface.addModality( ontology.getNode( 9 ) );
+    current_interface.print(); 
+    current_interface.addModality( ontology.getNode( 0 ) );
+    current_interface.print(); 
+    
+    test_interface.addModality( requirements_node );
+    test_interface.print(); 
+    test_interface.addModality( ontology.getNode( 18 ) );
+    test_interface.print(); 
+    test_interface.addModality( ontology.getNode( 9 ) );
+    test_interface.print(); 
+    test_interface.addModality( ontology.getNode( 0 ) );
+    test_interface.print(); 
+    
+    if( current_interface.compare( test_interface ) )
+    {
+   	    std::cout << "True!!!" << std::endl;
+    }
+    else
+    {
+        std::cout << "False!!!" << std::endl;
+    }
+    
+    if( current_interface == test_interface )
+    {
+        std::cout << "True!!!" << std::endl;
+    }
+    else
+    {
+        std::cout << "False!!!" << std::endl;
+    }
+    
+    return 0;
 }
